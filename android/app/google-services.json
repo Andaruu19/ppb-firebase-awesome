@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1567240863",
+    "project_id": "ppb-awesome-firebase",
+    "storage_bucket": "ppb-awesome-firebase.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1567240863:android:89337fdb06df68300068aa",
+        "android_client_info": {
+          "package_name": "com.example.ppb_awesome_notification"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASQlsB412GKf7bEvlEAtNy9asiufW3BlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
