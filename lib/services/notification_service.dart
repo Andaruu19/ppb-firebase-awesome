@@ -5,8 +5,7 @@ import 'package:ppb_awesome_notification/models/task.dart'; // Pastikan path ini
 class NotificationService {
   static Future<void> initializeNotifications() async {
     await AwesomeNotifications().initialize(
-      // null, // set null to use the default icon
-      'resource://drawable/res_app_icon', // pastikan ada icon ini di android/app/src/main/res/drawable
+      null,
       [
         NotificationChannel(
           channelKey: 'task_channel',
@@ -72,9 +71,8 @@ class NotificationService {
         onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
     );
   }
-  static Future<void> sendTaskCompletedNotification(Task task) async {
-    // ID unik untuk notifikasi ini, bisa berbeda dari reminderID
-    // Kita bisa gunakan timestamp atau hash + offset agar tidak bentrok dengan ID reminder
+
+    static Future<void> sendTaskCompletedNotification(Task task) async {
     final int notificationId = (task.id?.hashCode ?? DateTime.now().millisecondsSinceEpoch.hashCode).abs() % 2147483647 + 1000; // Tambah offset
 
     await AwesomeNotifications().createNotification(
@@ -88,7 +86,6 @@ class NotificationService {
       ),
       // Tidak ada parameter 'schedule', berarti notifikasi akan langsung muncul
     );
-    print("Notifikasi 'Task Selesai' dikirim untuk: ${task.title}");
   }
 }
 

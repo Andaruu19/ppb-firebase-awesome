@@ -42,20 +42,34 @@ class FirebaseService {
     }
   }
 
-  Future<void> toggleTaskDone(Task task) async {
+    Future<void> toggleTaskDone(Task task) async {
     if (task.id == null) return;
-    task.isCompleted = !task.isCompleted!;
+
+    // Simpan state isDone sebelumnya untuk logika notifikasi
+    bool wasPreviouslyDone = task.isCompleted ?? false;
+    task.isCompleted = !(task.isCompleted ?? false); // Toggle status
+
     await _db.collection(_collectionName).doc(task.id).update({'isDone': task.isCompleted});
 
-    // Jika task ditandai selesai dan punya notifikasi, cancel notifikasinya
-    if (task.isCompleted == true && task.notificationId != null) {
-      await NotificationService.cancelNotification(task.notificationId);
-    }
-    // Jika task ditandai belum selesai dan belum lewat waktu reminder, jadwalkan ulang
-    else if (task.isCompleted == false && task.reminderDateTime.isAfter(DateTime.now())) {
-      await NotificationService.scheduleNotification(task);
-       // Update notificationId di Firestore jika perlu (jika ada perubahan)
-      await _db.collection(_collectionName).doc(task.id).update({'notificationId': task.notificationId});
+    if (task.isCompleted == true) {
+      // Task BARU SAJA ditandai selesai
+      if (task.notificationId != null) {
+        await NotificationService.cancelNotification(task.notificationId);
+        // Opsional: Anda bisa set task.notificationId menjadi null di sini dan update Firestore
+        // jika Anda tidak ingin menyimpan ID notifikasi yang sudah di-cancel.
+        // task.notificationId = null;
+        // await _db.collection(_collectionName).doc(task.id).update({'notificationId': null});
+      }
+      // Kirim notifikasi bahwa task telah selesai
+      await NotificationService.sendTaskCompletedNotification(task); // <--- PANGGIL DI SINI
+    } else if (wasPreviouslyDone && task.isCompleted == true) {
+      // Task BARU SAJA ditandai BELUM selesai (sebelumnya selesai)
+      // Jadwalkan ulang notifikasi reminder jika waktunya belum lewat
+      if (task.reminderDateTime.isAfter(DateTime.now())) {
+        await NotificationService.scheduleNotification(task);
+        // Update notificationId di Firestore (karena scheduleNotification bisa menghasilkan ID baru jika sebelumnya null)
+        await _db.collection(_collectionName).doc(task.id).update({'notificationId': task.notificationId});
+      }
     }
   }
 }
